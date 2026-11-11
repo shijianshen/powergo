@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
-	"powergo/internal/config"
-	"powergo/internal/rpc"
-	"powergo/internal/sandbox"
-	"powergo/internal/task"
-	"powergo/internal/tool"
+	"github.com/shijianshen/powergo/internal/config"
+	"github.com/shijianshen/powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/sandbox"
+	"github.com/shijianshen/powergo/internal/task"
+	"github.com/shijianshen/powergo/internal/tool"
 )
 
 const (

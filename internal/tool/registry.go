@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"powergo/internal/config"
-	"powergo/internal/rpc"
-	"powergo/internal/sandbox"
-	"powergo/internal/task"
+	"github.com/shijianshen/powergo/internal/config"
+	"github.com/shijianshen/powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/sandbox"
+	"github.com/shijianshen/powergo/internal/task"
 )
 
 // Context 是一次调用的执行环境。

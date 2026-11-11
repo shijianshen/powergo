@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"powergo/internal/discovery"
+	"github.com/shijianshen/powergo/internal/discovery"
 )
 
 // pairReply 与服务端 /pair 的响应结构对应。

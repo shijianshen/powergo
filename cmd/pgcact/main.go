@@ -18,9 +18,9 @@ import (
 	"syscall"
 	"time"
 
-	"powergo/internal/config"
-	"powergo/internal/discovery"
-	"powergo/internal/server"
+	"github.com/shijianshen/powergo/internal/config"
+	"github.com/shijianshen/powergo/internal/discovery"
+	"github.com/shijianshen/powergo/internal/server"
 )
 
 func main() {

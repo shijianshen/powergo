@@ -1,4 +1,4 @@
-module powergo
+module github.com/shijianshen/powergo
 
 go 1.20
 

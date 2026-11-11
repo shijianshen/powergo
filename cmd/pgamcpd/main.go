@@ -26,9 +26,9 @@ import (
 	"os"
 	"sync"
 
-	"powergo/internal/remote"
-	"powergo/internal/rpc"
-	"powergo/internal/server"
+	"github.com/shijianshen/powergo/internal/remote"
+	"github.com/shijianshen/powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/server"
 )
 
 const (

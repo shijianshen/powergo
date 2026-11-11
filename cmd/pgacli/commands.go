@@ -12,7 +12,7 @@ import (
 	"time"
 	"unicode"
 
-	"powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/rpc"
 )
 
 func cmdHealth(ctx context.Context, c *Client) error {

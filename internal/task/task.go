@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"powergo/internal/winenc"
+	"github.com/shijianshen/powergo/internal/winenc"
 )
 
 // 任务状态

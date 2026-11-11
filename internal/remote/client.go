@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"strings"
 
-	"powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/rpc"
 )
 
 // Client 是与 PGCact 通信的 HTTP 客户端。

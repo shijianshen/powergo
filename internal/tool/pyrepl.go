@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/rpc"
 )
 
 // driverSrc 是常驻会话的解释器外壳。

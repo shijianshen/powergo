@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"powergo/internal/server"
+	"github.com/shijianshen/powergo/internal/server"
 )
 
 var (

@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"powergo/internal/discovery"
-	"powergo/internal/remote"
-	"powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/discovery"
+	"github.com/shijianshen/powergo/internal/remote"
+	"github.com/shijianshen/powergo/internal/rpc"
 )
 
 // connect 建立到 PGCact 的连接并缓存工具清单。调用方需持有锁时用 connectLocked。

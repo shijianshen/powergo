@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/rpc"
 )
 
 // RegisterPython 注册 Python 执行能力。

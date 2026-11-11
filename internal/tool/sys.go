@@ -12,8 +12,8 @@ import (
 	"time"
 	"unsafe"
 
-	"powergo/internal/rpc"
-	"powergo/internal/winenc"
+	"github.com/shijianshen/powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/winenc"
 )
 
 // RegisterSys 注册系统信息能力。

@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"time"
 
-	"powergo/internal/rpc"
-	"powergo/internal/task"
-	"powergo/internal/winenc"
+	"github.com/shijianshen/powergo/internal/rpc"
+	"github.com/shijianshen/powergo/internal/task"
+	"github.com/shijianshen/powergo/internal/winenc"
 )
 
 const createNoWindow = 0x08000000

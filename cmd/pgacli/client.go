@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 
-	"powergo/internal/remote"
+	"github.com/shijianshen/powergo/internal/remote"
 )
 
 // Client 直接复用公共实现，commands.go 里的用法保持不变。
