@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"juyuagent/internal/rpc"
+	"powergo/internal/rpc"
 )
 
 // RegisterPython 注册 Python 执行能力。
@@ -106,7 +106,7 @@ func pythonExec(c *Context, params json.RawMessage) (interface{}, *rpc.Error) {
 	}
 
 	// 走临时文件而不是 python -c：代码里有引号、换行、中文时 -c 几乎必然出错
-	dir, err := os.MkdirTemp("", "juyu_py_")
+	dir, err := os.MkdirTemp("", "powergo_py_")
 	if err != nil {
 		return nil, rpc.ErrInternal(err)
 	}

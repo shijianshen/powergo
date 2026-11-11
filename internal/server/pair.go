@@ -102,7 +102,7 @@ func (g *pairGuard) reset(ip string) {
 // handlePair 处理首次配对。
 //
 // 这是整个服务里唯一不校验 Token 的端点 —— 因为调用它的客户端还没有 Token。
-// 安全边界是：配对码只打印在电脑 C 的控制台窗口上，需要物理接触才能看到。
+// 安全边界是：配对码只打印在被控端 的控制台窗口上，需要物理接触才能看到。
 // 再加单 IP 5 次失败锁定 60 秒，6 位码猜中的概率被压到可忽略。
 func (s *Server) handlePair(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -110,7 +110,7 @@ func (s *Server) handlePair(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !s.Cfg.PairingOn() {
-		writeJSON(w, pairResponse{OK: false, Error: "本机未开放配对，请在 agentd.json 里把 pairing_enabled 设为 true"})
+		writeJSON(w, pairResponse{OK: false, Error: "本机未开放配对，请在 pgcact.json 里把 pairing_enabled 设为 true"})
 		return
 	}
 	if !s.ipAllowed(r) {

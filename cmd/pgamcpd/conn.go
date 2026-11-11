@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"juyuagent/internal/discovery"
-	"juyuagent/internal/remote"
-	"juyuagent/internal/rpc"
+	"powergo/internal/discovery"
+	"powergo/internal/remote"
+	"powergo/internal/rpc"
 )
 
-// connect 建立到 agentd 的连接并缓存工具清单。调用方需持有锁时用 connectLocked。
+// connect 建立到 PGCact 的连接并缓存工具清单。调用方需持有锁时用 connectLocked。
 func (s *serverState) connect(addrFlag, tokenFlag string, discPort int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -44,7 +44,7 @@ func (s *serverState) connectLocked(addrFlag, tokenFlag string, discPort int) er
 					store := remote.LoadStore()
 					store.Touch(cred.NodeID, p.Addr())
 					_ = store.Save()
-					fmt.Fprintf(os.Stderr, "[juyuagent] 节点地址已更新为 %s\n", p.Addr())
+					fmt.Fprintf(os.Stderr, "[PowerGo] 节点地址已更新为 %s\n", p.Addr())
 				}
 				break
 			}
@@ -81,7 +81,7 @@ func resolveClient(addrFlag, tokenFlag string) (*remote.Client, remote.Credentia
 	c, ok := store.Current()
 	if !ok {
 		return nil, remote.Credential{}, errors.New(
-			"本地没有配对凭据。请先在电脑 A 上执行 agentctl pair 完成一次配对")
+			"本地没有配对凭据。请先在控制端 上执行 PGActl pair 完成一次配对")
 	}
 	return remote.NewClient(c.Addr, c.Token), c, nil
 }
@@ -111,7 +111,7 @@ func sanitizeToolName(name string) string {
 	return out
 }
 
-// renderResult 把 agentd 的结果转成给 AI 看的文本。
+// renderResult 把 PGCact 的结果转成给 AI 看的文本。
 // 文件类工具直接把正文吐出来，避免正文被包在 JSON 字符串里、换行全变成 \n。
 func renderResult(raw json.RawMessage) string {
 	var obj map[string]interface{}

@@ -1,7 +1,7 @@
-// Command agentctl 是跑在电脑 A 上的命令行客户端，用于操作电脑 C 上的 agentd。
+// Command PGActl 是 PowerGo 的控制端命令行工具。
 //
-// 首次使用只需 `agentctl pair` 输入一次配对码，之后所有命令都会自动发现节点、
-// 自动带凭据，电脑 C 换 IP 也能自己找回来。
+// 只需要 `PGActl pair` 配对一次，之后所有命令都自动发现节点、自动带凭据，
+// 被控端换 IP 也能自己找回来。
 package main
 
 import (
@@ -13,10 +13,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"powergo/internal/server"
 )
 
 var (
-	flagAddr       = flag.String("addr", "", "手动指定 agentd 地址，如 http://192.168.2.11:7777（跳过自动发现）")
+	flagAddr       = flag.String("addr", "", "手动指定地址，如 http://192.168.1.5:7777（跳过自动发现）")
 	flagToken      = flag.String("token", "", "手动指定 Token（跳过配对）")
 	flagJSON       = flag.Bool("json", false, "输出原始 JSON")
 	flagNoStream   = flag.Bool("no-stream", false, "关闭流式输出，等命令结束一次性返回")
@@ -133,52 +135,49 @@ func dispatch(ctx context.Context, c *Client, cmd string, args []string) error {
 	case "rpc":
 		return cmdRaw(ctx, c, args)
 	default:
-		return fmt.Errorf("未知命令 %q，执行 agentctl -h 查看用法", cmd)
+		return fmt.Errorf("未知命令 %q，执行 PGActl -h 查看用法", cmd)
 	}
 }
 
 func usage() {
-	fmt.Fprint(os.Stderr, `juyu agentctl —— 远程操作电脑 C 上的 agentd
+	fmt.Fprint(os.Stderr, `PowerGo (抛二钩) v`+server.Version+` —— 跨机器 AI 执行钩子
 
-首次使用:
-  agentctl pair              自动发现局域网内的节点并配对（需要输入一次配对码）
-  agentctl discover          只看有哪些节点在线，不做配对
+PGActl 是控制端命令行工具。完成一次配对后，所有命令都无需再带地址和 Token，
+被控端换了 IP 也会自动重新发现。
 
-日常使用（配对后无需任何参数）:
-  agentctl info              系统信息、磁盘、内存、Python 版本
-  agentctl ls   <path>       列目录
-  agentctl exec <命令...>    执行命令，实时输出
-  agentctl py   <代码>       执行 Python
-  节点 IP 变化时会自动重新发现并更新地址
+首次配对:
+  PGActl pair [配对码]       自动发现局域网内的被控端并配对
+  PGActl discover            查看局域网内有哪些被控端在线
 
 节点管理:
-  agentctl nodes             查看已配对的节点
-  agentctl forget <主机名>    删除某节点凭据
-  agentctl pair <配对码>      重新配对默认节点
+  PGActl nodes               查看已配对的节点
+  PGActl forget <主机名>      删除某个节点的凭据
 
 文件:
-  ls <path> [-a]                  列目录
+  ls <path> [-a]                   列目录
   cat <path> [offset] [limit]      读取内容（适合管道）
   read <path>                      内容 + 元信息
-  write <path> [内容|-]            写入（- 表示从 stdin 读）
+  write <path> [内容|-]            写入，内容为 - 时从 stdin 读
   append <path> [内容|-]           追加
-  push <本地> <远程>               上传到电脑 C
-  pull <远程> <本地>               从电脑 C 下载
+  push <本地> <远程>                上传文件到被控端
+  pull <远程> <本地>                从被控端下载文件
   rm <path> [-r]                   删除
   mkdir <path>                     创建目录
   mv / cp <src> <dst> [-f]         移动 / 复制
-  find <root> [pattern] [-c 关键字] 递归搜索
+  find <root> [pattern] [-c 关键字]  递归搜索
 
 执行:
-  exec <命令...>                   同步执行
+  exec <命令...>                   同步执行，实时输出
   spawn <命令...>                  后台执行，返回任务 ID
-  tasks / log <id> [offset] / kill <id>
-  py <代码> | py -f <文件>
-  repl <代码> [-s 会话名] [-reset]
+  tasks / log <id> [offset] / kill <id>   后台任务管理
+  py <代码> | py -f <文件>          执行 Python（每次新进程）
+  repl <代码> [-s 会话名] [-reset]   常驻 Python 会话，变量跨调用保留
 
 系统:
-  info / ps [过滤词] / health / tools
-  rpc <method> [json]             直接调用任意方法
+  info                             主机名、系统、磁盘、内存、Python 版本
+  ps [过滤词]                       进程列表
+  health / tools                   探活 / 列出服务端工具
+  rpc <method> [json]              直接调用任意方法
 
 全局参数:
   -addr <url>      手动指定地址，跳过自动发现
@@ -190,12 +189,13 @@ func usage() {
   -timeout <秒>    请求超时
 
 示例:
-  agentctl pair
-  agentctl info
-  agentctl exec "ipconfig"
-  agentctl py "print(1+1)"
-  agentctl repl "x = 42"
-  agentctl -addr http://192.168.2.11:7777 -token 5dfd... info
+  PGActl pair 482913
+  PGActl info
+  PGActl exec "ipconfig"
+  PGActl py "print(1+1)"
+  PGActl repl "x = 42"
+  PGActl push .\local.zip D://target//app.zip
+  PGActl -addr http://192.168.1.5:7777 -token <token> info
 `)
 }
 

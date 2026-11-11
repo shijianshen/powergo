@@ -15,7 +15,7 @@ import (
 // discoveryPortDefault 与 discovery.DefaultPort 保持一致，这里避免循环依赖。
 const discoveryPortDefault = 7778
 
-// Config 是 agentd 的运行配置，对应 agentd.json。
+// Config 是 PGCact 的运行配置，对应 pgcact.json。
 type Config struct {
 	Listen            string   `json:"listen"`
 	Token             string   `json:"token"`
@@ -64,7 +64,7 @@ func Default() *Config {
 		MaxOutputBytes:    8 << 20,
 		PythonPath:        "",
 		WorkDir:           wd,
-		LogFile:           "agentd.log",
+		LogFile:           "pgcact.log",
 		PairingEnabled:    &on,
 		DiscoveryPort:     &discPort,
 	}
@@ -179,7 +179,7 @@ func (c *Config) applyDefaults() {
 		c.AllowedRoots = detectRoots()
 	}
 	if c.LogFile == "" {
-		c.LogFile = "agentd.log"
+		c.LogFile = "pgcact.log"
 	}
 	if c.WorkDir == "" {
 		c.WorkDir, _ = os.Getwd()

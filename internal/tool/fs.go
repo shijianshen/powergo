@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"juyuagent/internal/rpc"
+	"powergo/internal/rpc"
 )
 
 // RegisterFS 注册文件系统相关能力。

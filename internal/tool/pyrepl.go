@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"juyuagent/internal/rpc"
+	"powergo/internal/rpc"
 )
 
 // driverSrc 是常驻会话的解释器外壳。
@@ -132,7 +132,7 @@ func launchSession(name string, c *Context) (*PySession, error) {
 		return nil, errString(info.Error)
 	}
 
-	dir := filepath.Join(os.TempDir(), "juyu_repl")
+	dir := filepath.Join(os.TempDir(), "powergo_repl")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
 	}

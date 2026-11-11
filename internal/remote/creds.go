@@ -13,7 +13,7 @@ import (
 // Credential 是一台已配对节点的长期凭据。
 //
 // 关键设计：按 NodeID 索引而不是 IP。NodeID 只在重装系统时变化，
-// 所以电脑 C 换了 IP 也能认回来，只需要更新 Addr。
+// 所以被控端 换了 IP 也能认回来，只需要更新 Addr。
 type Credential struct {
 	NodeID   string    `json:"node_id"`
 	Host     string    `json:"host"`
@@ -30,16 +30,26 @@ type Store struct {
 	path    string
 }
 
-// credFilePath 返回凭据文件路径，可用环境变量 JYAGENT_HOME 覆盖（便于测试）。
+// credFilePath 返回凭据文件路径，可用环境变量 POWERGO_HOME 覆盖（便于测试）。
 func CredFilePath() string {
-	if dir := os.Getenv("JYAGENT_HOME"); dir != "" {
+	if dir := os.Getenv("POWERGO_HOME"); dir != "" {
 		return filepath.Join(dir, "credentials.json")
 	}
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
 		home = "."
 	}
-	return filepath.Join(home, ".juyuagent", "credentials.json")
+
+	primary := filepath.Join(home, ".powergo", "credentials.json")
+	if _, err := os.Stat(primary); err == nil {
+		return primary
+	}
+	// 兼容 0.x 的目录名，避免升级后需要重新配对
+	legacy := filepath.Join(home, ".juyuagent", "credentials.json")
+	if _, err := os.Stat(legacy); err == nil {
+		return legacy
+	}
+	return primary
 }
 
 func LoadStore() *Store {

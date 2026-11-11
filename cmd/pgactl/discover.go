@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"juyuagent/internal/discovery"
+	"powergo/internal/discovery"
 )
 
 // pairReply 与服务端 /pair 的响应结构对应。
@@ -29,7 +29,7 @@ type pairReply struct {
 	Version  string `json:"version,omitempty"`
 }
 
-// resolveClient 决定本次要连哪台 agentd，并保证拿到可用的 Token。
+// resolveClient 决定本次要连哪台 PGCact，并保证拿到可用的 Token。
 //
 // 优先级：
 //  1. -addr 显式指定 —— 最高优先级，用于跨网段等发现不到的场景
@@ -83,7 +83,7 @@ func resolveClient(ctx context.Context) (*Client, error) {
 				return NewClient(p.Addr(), c.Token), nil
 			}
 		}
-		return nil, fmt.Errorf("局域网内未找到 %s，请确认电脑 C 已开机且 agentd 正在运行", c.Host)
+		return nil, fmt.Errorf("局域网内未找到 %s，请确认被控端 已开机且 PGCact 正在运行", c.Host)
 	}
 
 	// 从未配对过：广播发现
@@ -91,15 +91,15 @@ func resolveClient(ctx context.Context) (*Client, error) {
 		return nil, errors.New("没有可用凭据，且已禁用自动发现；请用 -addr 与 -token 指定")
 	}
 
-	fmt.Fprintln(os.Stderr, "正在局域网内搜索 agentd...")
+	fmt.Fprintln(os.Stderr, "正在局域网内搜索 PGCact...")
 	peers, err := discovery.Probe(*flagDiscPort, 1200*time.Millisecond)
 	if err != nil {
 		return nil, fmt.Errorf("广播发现失败: %w", err)
 	}
 	if len(peers) == 0 {
-		return nil, errors.New("局域网内没有找到 agentd。\n" +
-			"请确认：1) 电脑 C 上的 agentd 已启动  2) 两台机器在同一网段  " +
-			"3) 电脑 C 的 UDP 7778 端口已放行")
+		return nil, errors.New("局域网内没有找到 PGCact。\n" +
+			"请确认：1) 被控端 上的 PGCact 已启动  2) 两台机器在同一网段  " +
+			"3) 被控端 的 UDP 7778 端口已放行")
 	}
 
 	peer := selectPeer(peers)
@@ -169,9 +169,9 @@ func pairWith(addr, host, presetCode string) (*pairReply, error) {
 	}
 
 	for attempt := 1; attempt <= 3; attempt++ {
-		code, err := promptLine("请输入电脑 C 控制台显示的 6 位配对码: ")
+		code, err := promptLine("请输入被控端 控制台显示的 6 位配对码: ")
 		if err != nil {
-			return nil, errors.New("无法读取输入；可直接把配对码写在命令后面: agentctl pair <配对码>")
+			return nil, errors.New("无法读取输入；可直接把配对码写在命令后面: PGActl pair <配对码>")
 		}
 		code = strings.TrimSpace(code)
 		if code == "" {
@@ -191,12 +191,12 @@ func pairWith(addr, host, presetCode string) (*pairReply, error) {
 		}
 		fmt.Fprintf(os.Stderr, "第 %d 次失败: %s\n", attempt, reply.Error)
 	}
-	return nil, errors.New("配对失败次数过多，请重启 agentctl 后重试")
+	return nil, errors.New("配对失败次数过多，请重启 PGActl 后重试")
 }
 
 func postPair(addr, code string) (*pairReply, error) {
 	host, _ := os.Hostname()
-	body, _ := json.Marshal(map[string]string{"code": code, "client": "agentctl@" + host})
+	body, _ := json.Marshal(map[string]string{"code": code, "client": "PGActl@" + host})
 
 	resp, err := http.Post(normalizeAddr(addr)+"/pair", "application/json", bytes.NewReader(body))
 	if err != nil {
@@ -280,9 +280,9 @@ func cmdDiscover() error {
 	}
 	if len(peers) == 0 {
 		fmt.Println("没有发现任何节点。排查顺序：")
-		fmt.Println("  1. 电脑 C 上的 agentd.exe 是否正在运行")
+		fmt.Println("  1. 被控端 上的 PGCact.exe 是否正在运行")
 		fmt.Println("  2. 两台机器是否连在同一个路由器/同一网段（广播不跨网段）")
-		fmt.Println("  3. 电脑 C 的防火墙是否放行了 UDP 7778")
+		fmt.Println("  3. 被控端 的防火墙是否放行了 UDP 7778")
 		fmt.Println("  4. 若已知地址，可用 -addr 直接连接")
 		return nil
 	}
@@ -303,7 +303,7 @@ func cmdDiscover() error {
 		rows = append(rows, []string{p.Host, p.IP, strconv.Itoa(p.HTTPPort), p.Version, state})
 	}
 	printTable([]string{"主机名", "IP", "端口", "版本", "状态"}, rows)
-	fmt.Fprintf(os.Stderr, "\n共 %d 个节点。执行 agentctl pair 接入\n", len(peers))
+	fmt.Fprintf(os.Stderr, "\n共 %d 个节点。执行 PGActl pair 接入\n", len(peers))
 	return nil
 }
 
@@ -311,7 +311,7 @@ func cmdDiscover() error {
 func cmdPair(args []string) error {
 	store := loadCreds()
 
-	// 允许 agentctl pair 118608 这种把配对码直接写在参数里的用法
+	// 允许 PGActl pair 118608 这种把配对码直接写在参数里的用法
 	_, rest := splitFlags(args)
 	presetCode := ""
 	if len(rest) > 0 && isAllDigits(rest[0]) {
@@ -328,7 +328,7 @@ func cmdPair(args []string) error {
 			return fmt.Errorf("广播失败: %w", err)
 		}
 		if len(peers) == 0 {
-			return errors.New("没有发现任何节点，请确认电脑 C 上的 agentd 正在运行")
+			return errors.New("没有发现任何节点，请确认被控端 上的 PGCact 正在运行")
 		}
 		peer = selectPeer(peers)
 		addr = peer.Addr()
@@ -373,7 +373,7 @@ func cmdPair(args []string) error {
 
 	fmt.Printf("配对完成：%s (%s)\n", reply.Host, addr)
 	fmt.Printf("凭据已保存到 %s\n", store.Path())
-	fmt.Println("现在可以直接执行 agentctl info")
+	fmt.Println("现在可以直接执行 PGActl info")
 	return nil
 }
 
@@ -382,7 +382,7 @@ func cmdNodes() error {
 	store := loadCreds()
 	nodes := store.List()
 	if len(nodes) == 0 {
-		fmt.Println("还没有配对任何节点。执行 agentctl pair 开始配对")
+		fmt.Println("还没有配对任何节点。执行 PGActl pair 开始配对")
 		return nil
 	}
 
@@ -406,7 +406,7 @@ func cmdNodes() error {
 func cmdForget(args []string) error {
 	_, rest := splitFlags(args)
 	if len(rest) < 1 {
-		return errors.New("用法: agentctl forget <主机名|节点ID>")
+		return errors.New("用法: PGActl forget <主机名|节点ID>")
 	}
 	key := rest[0]
 
@@ -419,7 +419,7 @@ func cmdForget(args []string) error {
 		}
 	}
 	if found == "" {
-		return fmt.Errorf("没有找到节点 %q，可用 agentctl nodes 查看", key)
+		return fmt.Errorf("没有找到节点 %q，可用 PGActl nodes 查看", key)
 	}
 	target, _ := store.Get(found)
 	host := target.Host

@@ -1,6 +1,6 @@
-// Package remote 封装与 agentd 的 HTTP+JSON-RPC 通信，以及客户端凭据管理。
+// Package remote 封装与 PGCact 的 HTTP+JSON-RPC 通信，以及客户端凭据管理。
 //
-// agentctl 与 mcpd 共用这一层，避免两套实现各自漂移。
+// PGActl 与 mcpd 共用这一层，避免两套实现各自漂移。
 package remote
 
 import (
@@ -14,10 +14,10 @@ import (
 	"net/http"
 	"strings"
 
-	"juyuagent/internal/rpc"
+	"powergo/internal/rpc"
 )
 
-// Client 是与 agentd 通信的 HTTP 客户端。
+// Client 是与 PGCact 通信的 HTTP 客户端。
 type Client struct {
 	addr  string
 	token string
@@ -42,7 +42,7 @@ func NewClient(addr, token string) *Client {
 		addr:  NormalizeAddr(addr),
 		token: token,
 		http: &http.Client{
-			// 长任务可能跑很久，不设整体超时，靠 agentd 侧的超时控制
+			// 长任务可能跑很久，不设整体超时，靠 PGCact 侧的超时控制
 			Timeout: 0,
 		},
 	}
@@ -101,12 +101,12 @@ func (c *Client) do(ctx context.Context, method string, params interface{}, stre
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return nil, rpc.NewError(rpc.CodeInternalError, "连接 agentd 失败: %v", err)
+		return nil, rpc.NewError(rpc.CodeInternalError, "连接 PGCact 失败: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusForbidden {
-		return nil, rpc.NewError(rpc.CodeSandboxDenied, "来源 IP 被拒绝，请检查 agentd 的 allow_ip 配置")
+		return nil, rpc.NewError(rpc.CodeSandboxDenied, "来源 IP 被拒绝，请检查 PGCact 的 allow_ip 配置")
 	}
 
 	if !stream {

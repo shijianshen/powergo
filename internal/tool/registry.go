@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"juyuagent/internal/config"
-	"juyuagent/internal/rpc"
-	"juyuagent/internal/sandbox"
-	"juyuagent/internal/task"
+	"powergo/internal/config"
+	"powergo/internal/rpc"
+	"powergo/internal/sandbox"
+	"powergo/internal/task"
 )
 
 // Context 是一次调用的执行环境。
@@ -26,7 +26,7 @@ type Context struct {
 	Tasks  *task.Manager
 	Py     *ReplManager
 
-	// Runtime 字段由 agentd 启动时填充，用于 sys.info 自检
+	// Runtime 字段由 PGCact 启动时填充，用于 sys.info 自检
 	Started time.Time
 	Version string
 	Addr    string

@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"juyuagent/internal/winenc"
+	"powergo/internal/winenc"
 )
 
 // 任务状态

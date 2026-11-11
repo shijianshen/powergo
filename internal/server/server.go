@@ -12,16 +12,16 @@ import (
 	"strings"
 	"time"
 
-	"juyuagent/internal/config"
-	"juyuagent/internal/rpc"
-	"juyuagent/internal/sandbox"
-	"juyuagent/internal/task"
-	"juyuagent/internal/tool"
+	"powergo/internal/config"
+	"powergo/internal/rpc"
+	"powergo/internal/sandbox"
+	"powergo/internal/task"
+	"powergo/internal/tool"
 )
 
 const (
-	// Version 会在 /health 与 sys.info 中返回，便于确认电脑 C 上跑的是哪一版
-	Version = "0.1.0"
+	// Version 会在 /health 与 sys.info 中返回，便于确认被控端 上跑的是哪一版
+	Version = "1.0.0"
 
 	maxBodyBytes = 16 << 20
 )
@@ -92,7 +92,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleTools 返回工具清单，方便 agentctl 直接展示可用能力。
+// handleTools 返回工具清单，方便 PGActl 直接展示可用能力。
 func (s *Server) handleTools(w http.ResponseWriter, r *http.Request) {
 	type toolBrief struct {
 		Name        string          `json:"name"`

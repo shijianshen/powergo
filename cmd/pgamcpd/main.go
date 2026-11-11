@@ -1,4 +1,4 @@
-// Command mcpd 是 MCP 适配层，把 agentd 的能力以 MCP 协议暴露给 AI 客户端。
+// Command mcpd 是 MCP 适配层，把 PGCact 的能力以 MCP 协议暴露给 AI 客户端。
 //
 // 数据流：
 //
@@ -8,7 +8,7 @@
 //	  mcpd
 //	    │  HTTP POST /rpc
 //	    ▼
-//	  agentd (电脑 C)
+//	  PGCact (被控端)
 //
 // 关键约束：stdout 是协议通道，任何日志、调试输出都必须走 stderr，
 // 否则会污染帧流让客户端解析失败。
@@ -26,9 +26,9 @@ import (
 	"os"
 	"sync"
 
-	"juyuagent/internal/remote"
-	"juyuagent/internal/rpc"
-	"juyuagent/internal/server"
+	"powergo/internal/remote"
+	"powergo/internal/rpc"
+	"powergo/internal/server"
 )
 
 const (
@@ -44,7 +44,7 @@ type serverState struct {
 	client *remote.Client
 	tools  []remote.ToolInfo
 
-	// MCP 要求工具名匹配 ^[a-zA-Z0-9_-]{1,64}$，agentd 用的 fs.read 含点号，
+	// MCP 要求工具名匹配 ^[a-zA-Z0-9_-]{1,64}$，PGCact 用的 fs.read 含点号，
 	// 需要双向映射：mcpName 供 tools/list，agentMethod 供 tools/call 还原。
 	mcpName     map[string]string
 	agentMethod map[string]string
@@ -55,7 +55,7 @@ func main() {
 	log.SetOutput(io.Discard)
 
 	var (
-		flagAddr     = flag.String("addr", "", "直接指定 agentd 地址，跳过凭据查找")
+		flagAddr     = flag.String("addr", "", "直接指定 PGCact 地址，跳过凭据查找")
 		flagToken    = flag.String("token", "", "直接指定 Token")
 		flagDiscPort = flag.Int("disc-port", 7778, "UDP 发现端口")
 		flagDebug    = flag.Bool("debug", false, "把调试日志写到 stderr")
@@ -72,9 +72,9 @@ func main() {
 		// 不退出：让客户端能连上并看到 tools/list 的报错信息，
 		// 直接退出反而会让客户端只显示"服务器启动失败"，无从排查。
 		log.Printf("初始连接失败: %v", err)
-		fmt.Fprintf(os.Stderr, "[juyuagent] 初始连接失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "[PowerGo] 初始连接失败: %v\n", err)
 	} else {
-		fmt.Fprintf(os.Stderr, "[juyuagent] 已连接 %s，注册 %d 个工具\n", state.host, len(state.tools))
+		fmt.Fprintf(os.Stderr, "[PowerGo] 已连接 %s，注册 %d 个工具\n", state.host, len(state.tools))
 	}
 
 	serve(state, *flagAddr, *flagToken, *flagDiscPort)
@@ -114,7 +114,7 @@ func serve(s *serverState, addr, token string, discPort int) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "[juyuagent] 读取 stdin 失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "[PowerGo] 读取 stdin 失败: %v\n", err)
 	}
 }
 
@@ -130,7 +130,7 @@ func handle(s *serverState, req *rpc.Request, addr, token string, discPort int) 
 		return handleToolsCall(s, req, addr, token, discPort)
 	default:
 		// resources/prompts 等未实现的能力，明确返回不支持，客户端会自动降级
-		return errResponse(req.ID, rpc.CodeMethodNotFound, "mcpd 不支持该方法: "+req.Method)
+		return errResponse(req.ID, rpc.CodeMethodNotFound, "PGAmcpd 不支持该方法: "+req.Method)
 	}
 }
 
@@ -154,7 +154,7 @@ func handleInitialize(req *rpc.Request) *rpc.Response {
 			"tools": map[string]interface{}{"listChanged": false},
 		},
 		"serverInfo": map[string]interface{}{
-			"name":    "juyuagent",
+			"name":    "powergo",
 			"version": server.Version,
 		},
 	})
@@ -168,8 +168,8 @@ func handleToolsList(s *serverState, req *rpc.Request, addr, token string, discP
 	if len(s.tools) == 0 {
 		if err := s.connect(addr, token, discPort); err != nil {
 			return errResponse(req.ID, rpc.CodeInternalError,
-				"无法连接电脑 C 上的 agentd: "+err.Error()+
-					"；请先在电脑 A 上执行 agentctl pair 完成配对，并确认 agentd 正在运行")
+				"无法连接被控端 上的 PGCact: "+err.Error()+
+					"；请先在控制端 上执行 PGActl pair 完成配对，并确认 PGCact 正在运行")
 		}
 	}
 
@@ -212,7 +212,7 @@ func handleToolsCall(s *serverState, req *rpc.Request, addr, token string, discP
 	}
 	if client == nil {
 		if err := s.connect(addr, token, discPort); err != nil {
-			return toolError(req.ID, "无法连接 agentd: "+err.Error())
+			return toolError(req.ID, "无法连接 PGCact: "+err.Error())
 		}
 		s.mu.Lock()
 		client = s.client

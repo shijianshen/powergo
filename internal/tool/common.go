@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"juyuagent/internal/rpc"
-	"juyuagent/internal/sandbox"
+	"powergo/internal/rpc"
+	"powergo/internal/sandbox"
 )
 
 // resolvePath 统一入口：先过沙箱，再把错误翻译成 Agent 能理解的 JSON-RPC 错误。

@@ -1,4 +1,4 @@
-module juyuagent
+module powergo
 
 go 1.20
 

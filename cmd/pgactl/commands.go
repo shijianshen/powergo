@@ -12,19 +12,19 @@ import (
 	"time"
 	"unicode"
 
-	"juyuagent/internal/rpc"
+	"powergo/internal/rpc"
 )
 
 func cmdHealth(ctx context.Context, c *Client) error {
 	m, err := c.Health(ctx)
 	if err != nil {
-		return fmt.Errorf("无法连接 agentd: %w", err)
+		return fmt.Errorf("无法连接 PGCact: %w", err)
 	}
 	if *flagJSON {
 		emitJSON(m)
 		return nil
 	}
-	fmt.Printf("agentd %v 在线\n", m["version"])
+	fmt.Printf("PGCact %v 在线\n", m["version"])
 	fmt.Printf("主机: %v   已运行: %v 秒   可访问根目录: %v 个\n", m["host"], fmtNum(m["uptime"]), fmtNum(m["roots"]))
 	return nil
 }
@@ -230,7 +230,7 @@ func cmdAppend(ctx context.Context, c *Client, args []string) error {
 	return nil
 }
 
-// push 把本地文件传到电脑 C，分块走 fs.write / fs.append，绕开单请求体积上限。
+// push 把本地文件传到被控端，分块走 fs.write / fs.append，绕开单请求体积上限。
 func cmdPush(ctx context.Context, c *Client, args []string) error {
 	_, rest := splitFlags(args)
 	if err := needArgs(rest, 2, "push <本地路径> <远程路径>"); err != nil {
@@ -273,7 +273,7 @@ func cmdPush(ctx context.Context, c *Client, args []string) error {
 	return nil
 }
 
-// pull 把电脑 C 上的文件拉回本地，按字节偏移循环读取。
+// pull 把被控端 上的文件拉回本地，按字节偏移循环读取。
 func cmdPull(ctx context.Context, c *Client, args []string) error {
 	_, rest := splitFlags(args)
 	if err := needArgs(rest, 2, "pull <远程路径> <本地路径>"); err != nil {
@@ -486,7 +486,7 @@ func cmdSpawn(ctx context.Context, c *Client, args []string) error {
 	}
 	_ = unwrap(raw, &res)
 	fmt.Printf("已启动任务 %s (PID %d)\n", res.ID, res.PID)
-	fmt.Printf("查看输出: agentctl log %s\n", res.ID)
+	fmt.Printf("查看输出: PGActl log %s\n", res.ID)
 	return nil
 }
 
@@ -722,7 +722,7 @@ func cmdInfo(ctx context.Context, c *Client) error {
 
 	fmt.Printf("主机名     %v\n", res["hostname"])
 	fmt.Printf("系统       %v/%v  %v 核\n", res["os"], res["arch"], fmtNum(res["cpus"]))
-	fmt.Printf("agentd     %v（已运行 %v 秒）\n", res["agent_version"], fmtNum(res["uptime_sec"]))
+	fmt.Printf("PGCact     %v（已运行 %v 秒）\n", res["agent_version"], fmtNum(res["uptime_sec"]))
 	fmt.Printf("工作目录   %v\n", res["work_dir"])
 
 	if d, ok := res["disks"].([]interface{}); ok && len(d) > 0 {

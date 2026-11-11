@@ -1,8 +1,8 @@
 // Package discovery 实现局域网自动发现。
 //
-// 电脑 C 的 IP 由 DHCP 分配，随时可能变化，靠人工维护地址不现实。
+// 被控端 的 IP 由 DHCP 分配，随时可能变化，靠人工维护地址不现实。
 // 这里用 UDP 广播做服务发现：客户端朝 255.255.255.255 和各网卡的定向广播地址
-// 发一个探测包，局域网内所有 agentd 单播回应自己的节点信息。
+// 发一个探测包，局域网内所有 PGCact 单播回应自己的节点信息。
 //
 // 发现只负责"找到"，认证靠 pairing 流程拿到 Token，两者分离。
 package discovery
@@ -20,7 +20,7 @@ import (
 
 const (
 	// Magic 用于快速过滤无关的 UDP 包
-	Magic = "JYAGENT"
+	Magic = "POWERGO"
 
 	// Proto 是协议版本，未来加字段时客户端可据此兼容
 	Proto = "1"

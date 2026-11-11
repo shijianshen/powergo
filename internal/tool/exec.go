@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"time"
 
-	"juyuagent/internal/rpc"
-	"juyuagent/internal/task"
-	"juyuagent/internal/winenc"
+	"powergo/internal/rpc"
+	"powergo/internal/task"
+	"powergo/internal/winenc"
 )
 
 const createNoWindow = 0x08000000
@@ -255,7 +255,7 @@ func prepare(c *Context, cmd *exec.Cmd, workdir string, extraEnv map[string]stri
 	}
 	cmd.Env = env
 
-	// 若 agentd 以后以 Windows 服务方式运行，子进程不加这个标志会弹黑窗
+	// 若 PGCact 以后以 Windows 服务方式运行，子进程不加这个标志会弹黑窗
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: createNoWindow}
 	return nil
 }

@@ -12,8 +12,8 @@ import (
 	"time"
 	"unsafe"
 
-	"juyuagent/internal/rpc"
-	"juyuagent/internal/winenc"
+	"powergo/internal/rpc"
+	"powergo/internal/winenc"
 )
 
 // RegisterSys 注册系统信息能力。
