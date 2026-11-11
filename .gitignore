@@ -1,0 +1,22 @@
+# 构建产物
+dist/
+*.exe
+
+# 运行时文件
+*.log
+*.json.tmp
+
+# 凭据与本地配置（绝不能提交）
+credentials.json
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 系统
+Thumbs.db
+.DS_Store
+
+# WorkBuddy 工作区数据
+.workbuddy/
