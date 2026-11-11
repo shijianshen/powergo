@@ -1,6 +1,13 @@
 # PowerGo · 抛二钩
 
+[![Release](https://img.shields.io/github/v/release/shijianshen/powergo?color=blue)](https://github.com/shijianshen/powergo/releases/latest)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%207%20%7C%208%20%7C%2010%20%7C%2011-lightgrey)](#兼容性)
+[![Go](https://img.shields.io/badge/go-1.20.14-00ADD8)](https://go.dev)
+
 > 跨机器 AI 执行钩子 —— 让 AI 安全地操作另一台电脑上的文件、命令和 Python。
+
+**[⬇ 下载最新版本](https://github.com/shijianshen/powergo/releases/latest)**
 
 **PowerGo** 由 **Power**Shell 和 **Go**lang 组合而来：用 Go 编写的轻量执行器，提供类似 PowerShell 的远程执行能力，但更聚焦于「让 AI Agent 能调用」这一场景。
 中文名 **抛二钩** —— 一台机器抛出问题，另一台机器钩住并执行。
