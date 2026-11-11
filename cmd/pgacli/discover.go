@@ -171,7 +171,7 @@ func pairWith(addr, host, presetCode string) (*pairReply, error) {
 	for attempt := 1; attempt <= 3; attempt++ {
 		code, err := promptLine("请输入被控端 控制台显示的 6 位配对码: ")
 		if err != nil {
-			return nil, errors.New("无法读取输入；可直接把配对码写在命令后面: PGActl pair <配对码>")
+			return nil, errors.New("无法读取输入；可直接把配对码写在命令后面: PGAcli pair <配对码>")
 		}
 		code = strings.TrimSpace(code)
 		if code == "" {
@@ -191,12 +191,12 @@ func pairWith(addr, host, presetCode string) (*pairReply, error) {
 		}
 		fmt.Fprintf(os.Stderr, "第 %d 次失败: %s\n", attempt, reply.Error)
 	}
-	return nil, errors.New("配对失败次数过多，请重启 PGActl 后重试")
+	return nil, errors.New("配对失败次数过多，请重启 PGAcli 后重试")
 }
 
 func postPair(addr, code string) (*pairReply, error) {
 	host, _ := os.Hostname()
-	body, _ := json.Marshal(map[string]string{"code": code, "client": "PGActl@" + host})
+	body, _ := json.Marshal(map[string]string{"code": code, "client": "PGAcli@" + host})
 
 	resp, err := http.Post(normalizeAddr(addr)+"/pair", "application/json", bytes.NewReader(body))
 	if err != nil {
@@ -303,7 +303,7 @@ func cmdDiscover() error {
 		rows = append(rows, []string{p.Host, p.IP, strconv.Itoa(p.HTTPPort), p.Version, state})
 	}
 	printTable([]string{"主机名", "IP", "端口", "版本", "状态"}, rows)
-	fmt.Fprintf(os.Stderr, "\n共 %d 个节点。执行 PGActl pair 接入\n", len(peers))
+	fmt.Fprintf(os.Stderr, "\n共 %d 个节点。执行 PGAcli pair 接入\n", len(peers))
 	return nil
 }
 
@@ -311,7 +311,7 @@ func cmdDiscover() error {
 func cmdPair(args []string) error {
 	store := loadCreds()
 
-	// 允许 PGActl pair 118608 这种把配对码直接写在参数里的用法
+	// 允许 PGAcli pair 118608 这种把配对码直接写在参数里的用法
 	_, rest := splitFlags(args)
 	presetCode := ""
 	if len(rest) > 0 && isAllDigits(rest[0]) {
@@ -373,7 +373,7 @@ func cmdPair(args []string) error {
 
 	fmt.Printf("配对完成：%s (%s)\n", reply.Host, addr)
 	fmt.Printf("凭据已保存到 %s\n", store.Path())
-	fmt.Println("现在可以直接执行 PGActl info")
+	fmt.Println("现在可以直接执行 PGAcli info")
 	return nil
 }
 
@@ -382,7 +382,7 @@ func cmdNodes() error {
 	store := loadCreds()
 	nodes := store.List()
 	if len(nodes) == 0 {
-		fmt.Println("还没有配对任何节点。执行 PGActl pair 开始配对")
+		fmt.Println("还没有配对任何节点。执行 PGAcli pair 开始配对")
 		return nil
 	}
 
@@ -406,7 +406,7 @@ func cmdNodes() error {
 func cmdForget(args []string) error {
 	_, rest := splitFlags(args)
 	if len(rest) < 1 {
-		return errors.New("用法: PGActl forget <主机名|节点ID>")
+		return errors.New("用法: PGAcli forget <主机名|节点ID>")
 	}
 	key := rest[0]
 
@@ -419,7 +419,7 @@ func cmdForget(args []string) error {
 		}
 	}
 	if found == "" {
-		return fmt.Errorf("没有找到节点 %q，可用 PGActl nodes 查看", key)
+		return fmt.Errorf("没有找到节点 %q，可用 PGAcli nodes 查看", key)
 	}
 	target, _ := store.Get(found)
 	host := target.Host

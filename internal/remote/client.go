@@ -1,6 +1,6 @@
 // Package remote 封装与 PGCact 的 HTTP+JSON-RPC 通信，以及客户端凭据管理。
 //
-// PGActl 与 mcpd 共用这一层，避免两套实现各自漂移。
+// PGAcli 与 mcpd 共用这一层，避免两套实现各自漂移。
 package remote
 
 import (

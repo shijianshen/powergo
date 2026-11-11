@@ -1,6 +1,6 @@
-// Command PGActl 是 PowerGo 的控制端命令行工具。
+// Command PGAcli 是 PowerGo 的控制端命令行工具。
 //
-// 只需要 `PGActl pair` 配对一次，之后所有命令都自动发现节点、自动带凭据，
+// 只需要 `PGAcli pair` 配对一次，之后所有命令都自动发现节点、自动带凭据，
 // 被控端换 IP 也能自己找回来。
 package main
 
@@ -135,23 +135,23 @@ func dispatch(ctx context.Context, c *Client, cmd string, args []string) error {
 	case "rpc":
 		return cmdRaw(ctx, c, args)
 	default:
-		return fmt.Errorf("未知命令 %q，执行 PGActl -h 查看用法", cmd)
+		return fmt.Errorf("未知命令 %q，执行 PGAcli -h 查看用法", cmd)
 	}
 }
 
 func usage() {
 	fmt.Fprint(os.Stderr, `PowerGo (抛二钩) v`+server.Version+` —— 跨机器 AI 执行钩子
 
-PGActl 是控制端命令行工具。完成一次配对后，所有命令都无需再带地址和 Token，
+PGAcli 是控制端命令行工具。完成一次配对后，所有命令都无需再带地址和 Token，
 被控端换了 IP 也会自动重新发现。
 
 首次配对:
-  PGActl pair [配对码]       自动发现局域网内的被控端并配对
-  PGActl discover            查看局域网内有哪些被控端在线
+  PGAcli pair [配对码]       自动发现局域网内的被控端并配对
+  PGAcli discover            查看局域网内有哪些被控端在线
 
 节点管理:
-  PGActl nodes               查看已配对的节点
-  PGActl forget <主机名>      删除某个节点的凭据
+  PGAcli nodes               查看已配对的节点
+  PGAcli forget <主机名>      删除某个节点的凭据
 
 文件:
   ls <path> [-a]                   列目录
@@ -189,13 +189,13 @@ PGActl 是控制端命令行工具。完成一次配对后，所有命令都无�
   -timeout <秒>    请求超时
 
 示例:
-  PGActl pair 482913
-  PGActl info
-  PGActl exec "ipconfig"
-  PGActl py "print(1+1)"
-  PGActl repl "x = 42"
-  PGActl push .\local.zip D://target//app.zip
-  PGActl -addr http://192.168.1.5:7777 -token <token> info
+  PGAcli pair 482913
+  PGAcli info
+  PGAcli exec "ipconfig"
+  PGAcli py "print(1+1)"
+  PGAcli repl "x = 42"
+  PGAcli push .\local.zip D://target//app.zip
+  PGAcli -addr http://192.168.1.5:7777 -token <token> info
 `)
 }
 

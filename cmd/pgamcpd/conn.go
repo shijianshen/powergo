@@ -81,7 +81,7 @@ func resolveClient(addrFlag, tokenFlag string) (*remote.Client, remote.Credentia
 	c, ok := store.Current()
 	if !ok {
 		return nil, remote.Credential{}, errors.New(
-			"本地没有配对凭据。请先在控制端 上执行 PGActl pair 完成一次配对")
+			"本地没有配对凭据。请先在控制端 上执行 PGAcli pair 完成一次配对")
 	}
 	return remote.NewClient(c.Addr, c.Token), c, nil
 }

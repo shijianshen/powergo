@@ -169,7 +169,7 @@ func handleToolsList(s *serverState, req *rpc.Request, addr, token string, discP
 		if err := s.connect(addr, token, discPort); err != nil {
 			return errResponse(req.ID, rpc.CodeInternalError,
 				"无法连接被控端 上的 PGCact: "+err.Error()+
-					"；请先在控制端 上执行 PGActl pair 完成配对，并确认 PGCact 正在运行")
+					"；请先在控制端 上执行 PGAcli pair 完成配对，并确认 PGCact 正在运行")
 		}
 	}
 

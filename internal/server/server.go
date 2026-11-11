@@ -92,7 +92,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleTools 返回工具清单，方便 PGActl 直接展示可用能力。
+// handleTools 返回工具清单，方便 PGAcli 直接展示可用能力。
 func (s *Server) handleTools(w http.ResponseWriter, r *http.Request) {
 	type toolBrief struct {
 		Name        string          `json:"name"`

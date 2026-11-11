@@ -25,13 +25,13 @@ set GOARCH=amd64
 go build -trimpath -ldflags "-s -w" -o dist\PGCact_amd64.exe .\cmd\pgcact
 if errorlevel 1 goto fail
 
-echo === [3/5] PGActl  windows/amd64 ===
-go build -trimpath -ldflags "-s -w" -o dist\PGActl.exe .\cmd\pgactl
+echo === [3/5] PGAcli  windows/amd64 ===
+go build -trimpath -ldflags "-s -w" -o dist\PGAcli.exe .\cmd\pgacli
 if errorlevel 1 goto fail
 
-echo === [4/5] PGActl  windows/386 ===
+echo === [4/5] PGAcli  windows/386 ===
 set GOARCH=386
-go build -trimpath -ldflags "-s -w" -o dist\PGActl_386.exe .\cmd\pgactl
+go build -trimpath -ldflags "-s -w" -o dist\PGAcli_386.exe .\cmd\pgacli
 if errorlevel 1 goto fail
 
 echo === [5/5] PGAmcpd windows/amd64 (MCP 适配层) ===

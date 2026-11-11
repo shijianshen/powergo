@@ -14,7 +14,7 @@
 - **单文件零依赖** — 纯静态编译，`CGO_ENABLED=0`，Windows 7 双击即用
 - **零配置发现** — UDP 广播自动找到局域网内的执行器，IP 变了会自动重连
 - **一次配对** — 6 位配对码换长期凭据，此后所有命令无需再带地址和 Token
-- **双入口** — 命令行 `PGActl` 供人使用，MCP 适配层 `PGAmcpd` 供 AI 客户端使用
+- **双入口** — 命令行 `PGAcli` 供人使用，MCP 适配层 `PGAmcpd` 供 AI 客户端使用
 - **中文友好** — GBK ↔ UTF-8 自动转码，中文路径、`dir` 输出、Python 打印都不乱码
 - **路径沙箱** — 所有文件操作被限制在配置的根目录白名单内，符号链接逃逸也会拦截
 - **Windows 7 兼容** — 锁定 Go 1.20 工具链构建，覆盖 Win7 SP1 到 Win11
@@ -29,7 +29,7 @@
 │                                  │         │                                  │
 │   AI 客户端 ──stdio──┐            │         │                                  │
 │                     ├── PGAmcpd ──┼── HTTP ─┼──▶ PGCact                         │
-│   人 ───────────────┴── PGActl    │  :7777  │      │                           │
+│   人 ───────────────┴── PGAcli    │  :7777  │      │                           │
 │                                  │         │      ├──▶ 文件读写                 │
 └──────────────────────────────────┘         │      ├──▶ 命令 / 脚本             │
               ╰────── UDP 7778 自动发现 ─────┼──────┤      └──▶ Python              │
@@ -41,10 +41,10 @@
 | 程序 | 位置 | 职责 |
 | :--- | :--- | :--- |
 | **PGCact** | 被控端 | HTTP + JSON-RPC 2.0 服务，提供 21 个能力 |
-| **PGActl** | 控制端 | 命令行客户端，供人手动操作 |
+| **PGAcli** | 控制端 | 命令行客户端，供人手动操作 |
 | **PGAmcpd** | 控制端 | MCP 适配层，把 21 个能力暴露给 AI 客户端 |
 
-`PGActl` 与 `PGAmcpd` 是并列关系，共用同一套凭据。MCP 不可用时命令行随时可兜底。
+`PGAcli` 与 `PGAmcpd` 是并列关系，共用同一套凭据。MCP 不可用时命令行随时可兜底。
 
 ---
 
@@ -67,7 +67,7 @@
   允许根目录  [C:\ D:\ E:\ F:\]
   ------------------------------------------------------------
   配对码      482913
-  在控制端执行 PGActl pair，输入上面这 6 位数字即可接入
+  在控制端执行 PGAcli pair，输入上面这 6 位数字即可接入
   广播发现    UDP 7778 已开启
   ------------------------------------------------------------
 ```
@@ -87,7 +87,7 @@ netsh advfirewall firewall add rule name="PowerGo UDP" dir=in action=allow proto
 ### 第二步：控制端配对
 
 ```powershell
-.\PGActl.exe pair
+.\PGAcli.exe pair
 ```
 
 它会广播搜索局域网内的执行器，找到后要求输入被控端显示的 6 位配对码。配对成功后凭据保存在 `%USERPROFILE%\.powergo\credentials.json`，**配对码会自动作废并换成新的**。
@@ -95,65 +95,65 @@ netsh advfirewall firewall add rule name="PowerGo UDP" dir=in action=allow proto
 ### 第三步：开始使用
 
 ```powershell
-.\PGActl.exe info
-.\PGActl.exe ls C:\
-.\PGActl.exe exec "ipconfig"
+.\PGAcli.exe info
+.\PGAcli.exe ls C:\
+.\PGAcli.exe exec "ipconfig"
 ```
 
 不再需要任何地址或 Token 参数。
 
 ---
 
-## PGActl 命令参考
+## PGAcli 命令参考
 
 ### 节点管理
 
 | 命令 | 说明 |
 | :--- | :--- |
-| `PGActl pair [配对码]` | 发现并配对执行器，配对码可省略改为交互输入 |
-| `PGActl discover` | 列出局域网内所有在线执行器（不配对） |
-| `PGActl nodes` | 查看本地已配对的节点 |
-| `PGActl forget <主机名\|节点ID>` | 删除某个节点的凭据 |
+| `PGAcli pair [配对码]` | 发现并配对执行器，配对码可省略改为交互输入 |
+| `PGAcli discover` | 列出局域网内所有在线执行器（不配对） |
+| `PGAcli nodes` | 查看本地已配对的节点 |
+| `PGAcli forget <主机名\|节点ID>` | 删除某个节点的凭据 |
 
 ### 文件操作
 
 | 命令 | 说明 |
 | :--- | :--- |
-| `PGActl ls <path> [-a]` | 列目录，`-a` 含隐藏项 |
-| `PGActl cat <path> [offset] [limit]` | 输出文件内容，适合管道；`offset` 为起始行号 |
-| `PGActl read <path>` | 输出内容 + 元信息（大小、行数、是否截断） |
-| `PGActl write <path> [内容\|-]` | 覆盖写入，内容为 `-` 时从 stdin 读 |
-| `PGActl append <path> [内容\|-]` | 追加写入 |
-| `PGActl push <本地> <远程>` | 上传文件（3 MB 分块，无体积上限） |
-| `PGActl pull <远程> <本地>` | 下载文件 |
-| `PGActl rm <path> [-r]` | 删除，非空目录必须显式 `-r` |
-| `PGActl mkdir <path>` | 创建目录（递归） |
-| `PGActl mv <src> <dst> [-f]` | 移动 / 重命名，跨盘自动降级为复制 |
-| `PGActl cp <src> <dst> [-f]` | 复制文件或目录树 |
-| `PGActl find <root> [pattern] [-c 关键字]` | 递归搜索，自动跳过 `.git`、`node_modules` 等 |
+| `PGAcli ls <path> [-a]` | 列目录，`-a` 含隐藏项 |
+| `PGAcli cat <path> [offset] [limit]` | 输出文件内容，适合管道；`offset` 为起始行号 |
+| `PGAcli read <path>` | 输出内容 + 元信息（大小、行数、是否截断） |
+| `PGAcli write <path> [内容\|-]` | 覆盖写入，内容为 `-` 时从 stdin 读 |
+| `PGAcli append <path> [内容\|-]` | 追加写入 |
+| `PGAcli push <本地> <远程>` | 上传文件（3 MB 分块，无体积上限） |
+| `PGAcli pull <远程> <本地>` | 下载文件 |
+| `PGAcli rm <path> [-r]` | 删除，非空目录必须显式 `-r` |
+| `PGAcli mkdir <path>` | 创建目录（递归） |
+| `PGAcli mv <src> <dst> [-f]` | 移动 / 重命名，跨盘自动降级为复制 |
+| `PGAcli cp <src> <dst> [-f]` | 复制文件或目录树 |
+| `PGAcli find <root> [pattern] [-c 关键字]` | 递归搜索，自动跳过 `.git`、`node_modules` 等 |
 
 ### 执行
 
 | 命令 | 说明 |
 | :--- | :--- |
-| `PGActl exec <命令...>` | 同步执行，输出实时流式回传 |
-| `PGActl spawn <命令...>` | 后台执行，立即返回任务 ID |
-| `PGActl tasks` | 列出后台任务 |
-| `PGActl log <id> [offset]` | 增量拉取任务输出 |
-| `PGActl kill <id>` | 终止任务及其子进程树 |
-| `PGActl py <代码>` | 执行 Python（每次新进程） |
-| `PGActl py -f <脚本>` | 执行本地 Python 文件 |
-| `PGActl repl <代码> [-s 会话名] [-reset]` | 常驻 Python 会话，变量跨调用保留 |
+| `PGAcli exec <命令...>` | 同步执行，输出实时流式回传 |
+| `PGAcli spawn <命令...>` | 后台执行，立即返回任务 ID |
+| `PGAcli tasks` | 列出后台任务 |
+| `PGAcli log <id> [offset]` | 增量拉取任务输出 |
+| `PGAcli kill <id>` | 终止任务及其子进程树 |
+| `PGAcli py <代码>` | 执行 Python（每次新进程） |
+| `PGAcli py -f <脚本>` | 执行本地 Python 文件 |
+| `PGAcli repl <代码> [-s 会话名] [-reset]` | 常驻 Python 会话，变量跨调用保留 |
 
 ### 系统
 
 | 命令 | 说明 |
 | :--- | :--- |
-| `PGActl info` | 主机名、系统、CPU、内存、磁盘、Python 版本 |
-| `PGActl ps [过滤词]` | 进程列表 |
-| `PGActl health` | 探活，不需要 Token |
-| `PGActl tools` | 列出服务端全部工具及 JSON Schema |
-| `PGActl rpc <method> [json]` | 直接调用任意 JSON-RPC 方法 |
+| `PGAcli info` | 主机名、系统、CPU、内存、磁盘、Python 版本 |
+| `PGAcli ps [过滤词]` | 进程列表 |
+| `PGAcli health` | 探活，不需要 Token |
+| `PGAcli tools` | 列出服务端全部工具及 JSON Schema |
+| `PGAcli rpc <method> [json]` | 直接调用任意 JSON-RPC 方法 |
 
 ### 全局参数
 
@@ -171,28 +171,28 @@ netsh advfirewall firewall add rule name="PowerGo UDP" dir=in action=allow proto
 
 ```powershell
 # 看被控端状况
-PGActl info
+PGAcli info
 
 # 实时看命令输出
-PGActl exec "ping -n 4 127.0.0.1"
+PGAcli exec "ping -n 4 127.0.0.1"
 
 # 跑一段 Python
-PGActl py "import sys; print(sys.version)"
+PGAcli py "import sys; print(sys.version)"
 
 # 常驻会话，变量保留
-PGActl repl "data = [i*2 for i in range(10)]"
-PGActl repl "print(sum(data))"        # 输出 90
+PGAcli repl "data = [i*2 for i in range(10)]"
+PGAcli repl "print(sum(data))"        # 输出 90
 
 # 长任务后台跑
-PGActl spawn "python train.py"
-PGActl log t_d7690d9928f4dd73         # 拉取输出
-PGActl kill t_d7690d9928f4dd73
+PGAcli spawn "python train.py"
+PGAcli log t_d7690d9928f4dd73         # 拉取输出
+PGAcli kill t_d7690d9928f4dd73
 
 # 传文件
-PGActl push .\build.zip D:\deploy\build.zip
+PGAcli push .\build.zip D:\deploy\build.zip
 
 # 管道配合
-PGActl cat D:\app.log | Select-String "ERROR"
+PGAcli cat D:\app.log | Select-String "ERROR"
 ```
 
 ---
@@ -222,7 +222,7 @@ PGActl cat D:\app.log | Select-String "ERROR"
 
 ### 前置条件
 
-`PGAmcpd` 复用 `PGActl` 的配对凭据，因此**先在控制端执行一次 `PGActl pair`**。
+`PGAmcpd` 复用 `PGAcli` 的配对凭据，因此**先在控制端执行一次 `PGAcli pair`**。
 
 ### 工具命名
 
@@ -246,7 +246,7 @@ MCP 规范要求工具名匹配 `^[a-zA-Z0-9_-]{1,64}$`，所以内部方法名�
 
 ## 能力清单
 
-被控端共暴露 21 个方法，`PGActl` 和 MCP 共用同一套：
+被控端共暴露 21 个方法，`PGAcli` 和 MCP 共用同一套：
 
 | 分组 | 方法 |
 | :--- | :--- |
@@ -374,7 +374,7 @@ go build -trimpath -ldflags "-s -w" -o dist/PGCact_386.exe ./cmd/pgcact
 
 set GOARCH=amd64
 go build -trimpath -ldflags "-s -w" -o dist/PGCact_amd64.exe ./cmd/pgcact
-go build -trimpath -ldflags "-s -w" -o dist/PGActl.exe ./cmd/pgactl
+go build -trimpath -ldflags "-s -w" -o dist/PGAcli.exe ./cmd/pgacli
 go build -trimpath -ldflags "-s -w" -o dist/PGAmcpd.exe ./cmd/pgamcpd
 ```
 
@@ -384,7 +384,7 @@ go build -trimpath -ldflags "-s -w" -o dist/PGAmcpd.exe ./cmd/pgamcpd
 powergo/
 ├── cmd/
 │   ├── pgcact/           # 被控端执行器
-│   ├── pgactl/           # 命令行客户端
+│   ├── pgacli/           # 命令行客户端
 │   └── pgamcpd/          # MCP 适配层
 ├── internal/
 │   ├── config/           # 配置加载与凭据生成

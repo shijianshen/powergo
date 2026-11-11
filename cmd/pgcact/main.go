@@ -1,7 +1,7 @@
 // Command PGCact 是部署在被控端（Windows 7）上的被控端。
 //
 // 它在局域网内监听一个端口，把文件读写、命令执行、Python 执行等能力
-// 以 JSON-RPC 2.0 的形式暴露给控制端 上的 PGActl 或 MCP 适配器。
+// 以 JSON-RPC 2.0 的形式暴露给控制端 上的 PGAcli 或 MCP 适配器。
 package main
 
 import (
@@ -147,7 +147,7 @@ func banner(cfg *config.Config, cfgPath string) {
 
 	if cfg.PairingOn() {
 		fmt.Printf("  配对码      %s\n", cfg.PairCode)
-		fmt.Printf("  在控制端执行 PGActl pair，输入上面这 6 位数字即可接入\n")
+		fmt.Printf("  在控制端执行 PGAcli pair，输入上面这 6 位数字即可接入\n")
 		fmt.Printf("  （配对成功后会自动换成新码，旧码立即失效）\n")
 	} else {
 		fmt.Printf("  配对已关闭，客户端需手动配置 Token\n")
@@ -160,8 +160,8 @@ func banner(cfg *config.Config, cfgPath string) {
 	}
 	fmt.Println(sep)
 
-	fmt.Printf("  控制端只需执行：PGActl info\n")
-	fmt.Printf("  手动指定地址：PGActl -addr http://%s:%d info\n\n",
+	fmt.Printf("  控制端只需执行：PGAcli info\n")
+	fmt.Printf("  手动指定地址：PGAcli -addr http://%s:%d info\n\n",
 		localIP, httpPort)
 
 	if cfg.GeneratedToken {

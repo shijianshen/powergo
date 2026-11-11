@@ -486,7 +486,7 @@ func cmdSpawn(ctx context.Context, c *Client, args []string) error {
 	}
 	_ = unwrap(raw, &res)
 	fmt.Printf("已启动任务 %s (PID %d)\n", res.ID, res.PID)
-	fmt.Printf("查看输出: PGActl log %s\n", res.ID)
+	fmt.Printf("查看输出: PGAcli log %s\n", res.ID)
 	return nil
 }
 
